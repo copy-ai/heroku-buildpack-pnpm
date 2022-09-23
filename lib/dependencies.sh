@@ -154,7 +154,7 @@ pnpm_prune_devdependencies() {
 
   echo "Pruning node modules (pnpm-lock.yaml)"
   cd "$build_dir" || return
-  monitor "pnpm-prune" pnpm install --prod --frozen-lockfile --prefer-offline
+  monitor "pnpm-prune" pnpm prune --prod
   meta_set "skipped-prune" "false"
 }
 
