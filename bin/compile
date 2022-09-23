@@ -192,8 +192,8 @@ install_bins() {
   npm_engine=$(read_json "$BUILD_DIR/package.json" ".engines.npm")
   yarn_engine=$(read_json "$BUILD_DIR/package.json" ".engines.yarn")
   pnpm_engine=$(read_json "$BUILD_DIR/package.json" ".engines.pnpm")
-  
-  
+
+
   # Respect PNPM_VERSION env variable if defined
   if [ -n "$PNPM_VERSION" ]; then
     pnpm_engine="$PNPM_VERSION"
@@ -241,6 +241,12 @@ install_bins() {
     if ! npm install --global "pnpm@${pnpm_engine:latest}" 2>@1>/dev/null; then
       echo "Unable to install pnpm ${pnpm_engine:latest}; does it exist?" && false
     fi
+
+    ## Copy.ai
+    # echo "-----> Install pnpm"
+    # PNPM_VERSION=`cat package.json| grep packageManager | cut -d'@' -f 2 | cut -d'"' -f 1`
+    # npm install -g pnpm@${PNPM_VERSION}
+
     pnpm config set store-dir "$CACHE_DIR"/.pnpm-store
     echo "pnpm $(pnpm --version) installed"
   fi
