@@ -142,11 +142,20 @@ yarn_node_modules() {
 
 pnpm_node_modules() {
   local build_dir=${1:-}
-  local production=${PNPM_PRODUCTION:-false}
+  local NODE_ENV=development
 
   echo "Installing node modules (pnpm-lock.yaml)"
   cd "$build_dir" || return
-  monitor "pnpm-install" pnpm install
+  monitor "pnpm-install" pnpm install --frozen-lockfile --prefer-offline
+}
+
+pnpm_prune_devdependencies() {
+  local build_dir=${1:-}
+
+  echo "Pruning node modules (pnpm-lock.yaml)"
+  cd "$build_dir" || return
+  monitor "pnpm-prune" pnpm install --prod --frozen-lockfile --prefer-offline
+  meta_set "skipped-prune" "false"
 }
 
 yarn_2_install() {
