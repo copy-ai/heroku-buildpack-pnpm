@@ -223,7 +223,8 @@ install_bins() {
   if $PNPM; then
     meta_set "build-step" "install-pnpm"
     echo "-----> Install pnpm"
-    curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=`cat package.json| grep packageManager | cut -d'@' -f 2 | cut -d'"' -f 1` sh -
+    PNPM_VERSION=`cat package.json| grep packageManager | cut -d'@' -f 2 | cut -d'"' -f 1`
+    curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@${PNPM_VERSION}
     pnpm config set store-dir "$CACHE_DIR"/.pnpm-store
   fi
 
