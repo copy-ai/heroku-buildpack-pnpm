@@ -224,7 +224,7 @@ install_bins() {
     meta_set "build-step" "install-pnpm"
     echo "-----> Install pnpm"
     PNPM_VERSION=`cat package.json| grep packageManager | cut -d'@' -f 2 | cut -d'"' -f 1`
-    curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@${PNPM_VERSION}
+    npm install -g pnpm
     pnpm config set store-dir "$CACHE_DIR"/.pnpm-store
   fi
 
