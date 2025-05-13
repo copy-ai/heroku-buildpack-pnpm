@@ -92,33 +92,22 @@ run_prebuild_script() {
 
 run_build_script() {
   local build_dir=${1:-}
-  local has_build_script has_heroku_build_script
 
-  has_build_script=$(has_script "$build_dir/package.json" "build")
-  has_heroku_build_script=$(has_script "$build_dir/package.json" "heroku-postbuild")
-  if [[ "$has_heroku_build_script" == "true" ]] && [[ "$has_build_script" == "true" ]]; then
-    echo "Detected both \"build\" and \"heroku-postbuild\" scripts"
-    mcount "scripts.heroku-postbuild-and-build"
-    run_if_present "$build_dir" 'heroku-postbuild'
-  elif [[ "$has_heroku_build_script" == "true" ]]; then
-    mcount "scripts.heroku-postbuild"
-    run_if_present "$build_dir" 'heroku-postbuild'
-  elif [[ "$has_build_script" == "true" ]]; then
-    mcount "scripts.build"
-    run_build_if_present "$build_dir" 'build'
-  fi
+  echo "Running pnpm build:heroku"
+  cd "$build_dir" || return
+  monitor "pnpm-build-heroku" pnpm build:heroku
 }
 
 run_cleanup_script() {
   local build_dir=${1:-}
   local has_heroku_cleanup_script
 
-  has_heroku_cleanup_script=$(has_script "$build_dir/package.json" "heroku-cleanup")
+  has_heroku_cleanup_script=$(has_script "$build_dir/package.json" "cleanup:heroku")
 
   if [[ "$has_heroku_cleanup_script" == "true" ]]; then
-    mcount "script.heroku-cleanup"
+    mcount "script.cleanup:heroku"
     header "Cleanup"
-    run_if_present "$build_dir" 'heroku-cleanup'
+    run_if_present "$build_dir" 'cleanup:heroku'
   fi
 }
 
@@ -142,11 +131,22 @@ yarn_node_modules() {
 
 pnpm_node_modules() {
   local build_dir=${1:-}
-  local production=${PNPM_PRODUCTION:-false}
+  local NODE_ENV=development
 
   echo "Installing node modules (pnpm-lock.yaml)"
   cd "$build_dir" || return
   monitor "pnpm-install" env NODE_ENV=build pnpm install 2>&1
+## Romain original changes
+##  monitor "pnpm-install" pnpm install --frozen-lockfile --prefer-offline
+##}
+##
+##pnpm_prune_devdependencies() {
+##  local build_dir=${1:-}
+##
+##  echo "Pruning node modules (pnpm-lock.yaml)"
+##  cd "$build_dir" || return
+##  monitor "pnpm-prune" pnpm prune --prod
+##  meta_set "skipped-prune" "false"
 }
 
 yarn_2_install() {
